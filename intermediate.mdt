@@ -1,0 +1,13 @@
+0000SUM      START     0
+0000FIRST      LDX     ZERO
+0003      LDA     ZERO
+0006LOOP      ADD     TABLE,X
+0009      TIX     COUNT
+000C      JLT     LOOP
+000F      STA     TOTAL
+0012      RSUB     
+0015TABLE      RESW     128
+0195COUNT      RESW     1
+0198ZERO      WORD     0
+019BTOTAL      RESW     1
+019E      END     FIRST
