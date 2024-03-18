@@ -21,11 +21,11 @@ def hexTo4Hex(hexBefore):
     
     if len == 0:
         result = "0000"
-    if len == 1:
+    elif len == 1:
         result = "000" + str(hexBefore)
-    if len == 2:
+    elif len == 2:
         result = "00" + str(hexBefore)
-    if len == 3:
+    elif len == 3:
         result = "0" + str(hexBefore)
     return result
     
@@ -67,14 +67,15 @@ for Line in Lines[1:]:
     elif dic[1] == "RESB":
         leng = int(dic[2])
         location = location + leng
+    elif dic[1] == "BYTE":
+        location = location + 1
     else:
         leng = 3
         if count != 0:
             location = location + leng
     count+=1
-
-
-    
+    if dic[1] == "END":
+        PROGLENGTH = location
 
 PROGLENGTH = decimalToHexadecimal(PROGLENGTH)
 PROGLENGTH = hexTo4Hex(PROGLENGTH)
