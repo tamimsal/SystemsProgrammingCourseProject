@@ -67,47 +67,73 @@ def writingOnIntermidiateFile(LOCCTR, LINEIN):
     f.write(dic[2])
 
 for Line in Lines:
-    dic = Line.split(" ")
-    dic[0].replace(" ", "")
+    if(Line[0] != '.'):
+        dic = Line.split(" ")
+        dic[0].replace(" ", "")
     
-    if(PRGNAME == ""):
-        PRGNAME = dic[0]
+        if(PRGNAME == ""):
+            PRGNAME = dic[0]
     
-    if(dic[0]):
-        SYMTAB[dic[0]] = 0
+        if(dic[0]):
+            SYMTAB[dic[0]] = 0
     
-    while("" in dic):
-        dic.remove("")   
-    if str(dic[0]) not in SYMTAB.keys():
-        dic.insert(0,"")
-    wrwr = decimalToHexadecimal(location)
-    qaa = hexTo4Hex(wrwr)
-    if(dic[0] != ""):
-        SYMTAB[dic[0]] = qaa
+        while("" in dic):
+            dic.remove("")   
+        if str(dic[0]) not in SYMTAB.keys():
+            dic.insert(0,"")
+        wrwr = decimalToHexadecimal(location)
+        qaa = hexTo4Hex(wrwr)
+        if(dic[0] != ""):
+            SYMTAB[dic[0]] = qaa
     
-    writingOnIntermidiateFile(qaa,dic)
-    # f.write(qaa)
-    # f.write(str(dic[0]) + "      " + str(dic[1]) + "     " + str(dic[2]))
-    if dic[1] == "RESW":
-        leng = int(dic[2])
-        location = location + leng*3
-    elif dic[1] == "RESB":
-        leng = int(dic[2])
-        location = location + leng
-    elif dic[1] == "BYTE":
-        location = location + 1
-    else:
-        leng = 3
-        if count != 0:
+        writingOnIntermidiateFile(qaa,dic)
+
+        if dic[1] == "RESW":
+            leng = int(dic[2])
+            location = location + leng*3
+        elif dic[1] == "RESB":
+            leng = int(dic[2])
             location = location + leng
-    count+=1
-    if dic[1] == "END":
-        PROGLENGTH = location
+        elif dic[1] == "BYTE":
+            location = location + 1
+        else:
+            leng = 3
+            if count != 0:
+                location = location + leng
+        count+=1
+        if dic[1] == "END":
+            PROGLENGTH = location
+
+
+for line in Lines:
+    comment = ""
+    for i in line [40:70]:
+        comment = comment + str(i)
+    
+
 
 PROGLENGTH = decimalToHexadecimal(PROGLENGTH)
 PROGLENGTH = hexTo4Hex(PROGLENGTH)
 
-#print(SYMTAB)
-#print(PROGLENGTH)
-#print(PRGNAME)
+
+
+
+print("SYMTAB")
+print("Symbol     LOCCTR")
+for sy in SYMTAB:
+    print(sy ,end="")
+    lens = str(sy)
+    le = 0
+    for i in lens:
+        if(i.isalpha()):
+            le+=1
+    le = 11 - le
+    while(le > 0):
+        print(" " ,end="")
+        le-=1
+    print(SYMTAB[sy])
+
+
+print("Program Name: " + PRGNAME)
+print("Program Length: " + PROGLENGTH)
 
