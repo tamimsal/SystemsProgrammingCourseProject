@@ -1,4 +1,3 @@
-<-Label--> <-OPCode-> <----Operand----> <---------Comment------------>
 SUM        START      0
 FIRST      LDX        ZERO
            LDA        ZERO

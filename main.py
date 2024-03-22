@@ -40,7 +40,33 @@ count = 0
 PRGNAME = ""
 location = 0
 
-for Line in Lines[1:]:
+
+def writingOnIntermidiateFile(LOCCTR, LINEIN):
+    f.write(LOCCTR)
+    f.write("    " + dic[0])
+    lens = str(dic[0])
+    le = 0
+    for i in lens:
+        if(i.isalpha()):
+            le+=1
+    le = 11 - le
+    while(le > 0):
+        f.write(" ")
+        le-=1
+    f.write(dic[1])
+
+    lens = str(dic[1])
+    le = 0
+    for i in lens:
+        if(i.isalpha()):
+            le+=1
+    le = 11 - le
+    while(le > 0):
+        f.write(" ")
+        le-=1
+    f.write(dic[2])
+
+for Line in Lines:
     dic = Line.split(" ")
     dic[0].replace(" ", "")
     
@@ -59,8 +85,9 @@ for Line in Lines[1:]:
     if(dic[0] != ""):
         SYMTAB[dic[0]] = qaa
     
-    f.write(qaa)
-    f.write(str(dic[0]) + "      " + str(dic[1]) + "     " + str(dic[2]))
+    writingOnIntermidiateFile(qaa,dic)
+    # f.write(qaa)
+    # f.write(str(dic[0]) + "      " + str(dic[1]) + "     " + str(dic[2]))
     if dic[1] == "RESW":
         leng = int(dic[2])
         location = location + leng*3
