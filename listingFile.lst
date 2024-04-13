@@ -1,8 +1,15 @@
-0000    SUM        START      0      
-0000    FIRST      LDX        ZERO      04
-0003               LDA        ZERO      00
-0006    LOOP       ADD        TABLE,X      18
-0009               TIX        COUNT      2C
-000C               JLT        LOOP      38
-000F               STA        TOTAL      0C
-0012               RSUB             4C
+01A3    SUM        START      0             
+01A6    FIRST      LDX        ZERO             04019A
+01A9               LDA        ZERO             00019A
+01AC    LOOP       ADD        TABLE,X             180017
+01AF               TIX        COUNT             2C0197
+01B2               JLT        LOOP             380006
+01B5               STA        TOTAL             0C019D
+01B8               RSUB                    4C0000
+01BB    INPUT      BYTE       X'F1'             F1
+01BC    EOF        BYTE       C'EOF'             454F46
+01BD    TABLE      RESW       128             
+033D    COUNT      RESW       1             
+0340    ZERO       WORD       0             000000
+0343    TOTAL      RESW       1             
+0346               END        FIRST             

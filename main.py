@@ -38,6 +38,26 @@ def hexTo4Hex(hexBefore):
     return result
     
 
+def hexTo6Hex(hexBefore):
+    x = str(hexBefore)
+    len = x.__len__()
+    result = "" 
+    if len == 0:
+        result = "000000"
+    elif len == 1:
+        result = "00000" + str(hexBefore)
+    elif len == 2:
+        result = "0000" + str(hexBefore)
+    elif len == 3:
+        result = "000" + str(hexBefore)
+    elif len == 4:
+        result = "00" + str(hexBefore)
+    elif len == 5:
+        result = "0" + str(hexBefore)
+    elif len == 6:
+        result = str(hexBefore)
+    return result
+
 SYMTAB = {}                                 #defining SYMTAB to store values
 f = open("intermediate.mdt", "w")           #opening intermediate file
 
@@ -112,14 +132,52 @@ def writingListingFile(loca, fileToUse):
     wee = fileToUse[2]
     wee = wee.strip()
 
-    writeLst.write(wee + "      ")
+    writeLst.write(wee + "             ")
     
     writeLst.write(firstByte)
-
+    secondByte = ""
     for sy in SYMTAB:
-        if(wee == sy):
-            writeLst.write(SYMTAB[sy])
-            print(wee + " " + sy)
+        if sy in wee:
+            secondByte = SYMTAB[sy]
+
+    if(fileToUse[1] == "RSUB"):
+        secondByte = "0000"
+    elif(fileToUse[1] == "WORD"):
+        num = int(fileToUse[2])
+        if(num == 0):
+            secondByte = "000000"
+        else:
+            num = decimalToHexadecimal(num)
+            secondByte = hexTo6Hex(num)
+    elif(fileToUse[1] == "END"):
+        secondByte = ""
+    elif(fileToUse[1] == "BYTE"):
+        if(fileToUse[2][0] == 'X'):
+            secondByte = "" + fileToUse[2][2] + fileToUse[2][3]
+        else:
+            convertToAscii = ''
+            convertToAscii = fileToUse[2][2]
+            convertToAscii = ord(convertToAscii)
+            convertToAscii = decimalToHexadecimal(convertToAscii)
+            firstByte = convertToAscii
+            writeLst.write(firstByte)
+
+            convertToAscii = ''
+            convertToAscii = fileToUse[2][3]
+            convertToAscii = ord(convertToAscii)
+            convertToAscii = decimalToHexadecimal(convertToAscii)
+            secondByte = convertToAscii
+
+            convertToAscii = ''
+            convertToAscii = fileToUse[2][4]
+            convertToAscii = ord(convertToAscii)
+            convertToAscii = decimalToHexadecimal(convertToAscii)
+            secondByte = secondByte + convertToAscii
+
+    writeLst.write(secondByte)
+
+
+
 
             
 
@@ -168,9 +226,70 @@ for Line in Lines:
         if dic[1] == "END":
             PROGLENGTH = location
 
+
+
+
+
+
+for Line in Lines:
+    if(Line[0] != '.'):
+        dic = Line.split(" ")
+        dic[0].replace(" ", "")
+        while("" in dic):
+            dic.remove("")   
+        if str(dic[0]) not in SYMTAB.keys():
+            dic.insert(0,"")
+        wrwr = decimalToHexadecimal(location)
+        qaa = hexTo4Hex(wrwr)
+        
+        if dic[1] == "RESW":
+            leng = int(dic[2])
+            location = location + leng*3
+        elif dic[1] == "RESB":
+            leng = int(dic[2])
+            location = location + leng
+        elif dic[1] == "BYTE":
+            location = location + 1
+        else:
+            leng = 3
+            if count != 0:
+                location = location + leng
+        count+=1
+
         fileToUse = dic
         loca = qaa
         writingListingFile(loca, fileToUse)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 for line in Lines:

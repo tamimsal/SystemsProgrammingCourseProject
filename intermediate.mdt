@@ -6,3 +6,8 @@
 000C               JLT        LOOP
 000F               STA        TOTAL
 0012               RSUB       
+0015    INPUT      BYTE       X'F1'0016    EOF        BYTE       C'EOF'0017    TABLE      RESW       128
+0197    COUNT      RESW       1
+019A    ZERO       WORD       0
+019D    TOTAL      RESW       1
+01A0               END        FIRST
