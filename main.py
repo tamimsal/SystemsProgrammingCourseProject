@@ -5,15 +5,16 @@
 #the code.asm is stored in the tests folder, if you want to run different tests you could change the code or change directory file name
 #the code is stored in intermediate.mdt file in the same folder
 
-#Conversion table to help convert from decimal to hexadecimal
-conversion_table = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 
-                    5: '5', 6: '6', 7: '7', 
-                    8: '8', 9: '9', 10: 'A', 11: 'B', 12: 'C', 
-                    13: 'D', 14: 'E', 15: 'F'} 
+
   
 
 #Method to convert decimal value to hexadecimal value
-def decimalToHexadecimal(decimal): 
+def decimalToHexadecimal(decimal):
+    #Conversion table to help convert from decimal to hexadecimal
+    conversion_table = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 
+                    5: '5', 6: '6', 7: '7', 
+                    8: '8', 9: '9', 10: 'A', 11: 'B', 12: 'C', 
+                    13: 'D', 14: 'E', 15: 'F'}  
     hexadecimal = '' 
     while(decimal > 0): 
         remainder = decimal % 16
@@ -21,6 +22,23 @@ def decimalToHexadecimal(decimal):
         decimal = decimal // 16
     return hexadecimal 
   
+def hexToDecimal(hexadecimal):
+    hexadecimal = "" + hexadecimal[0] + hexadecimal[1] + hexadecimal[2] + hexadecimal[3]  
+    table = {'0': 0, '1': 1, '2': 2, '3': 3,  
+         '4': 4, '5': 5, '6': 6, '7': 7, 
+         '8': 8, '9': 9, 'A': 10, 'B': 11,  
+         'C': 12, 'D': 13, 'E': 14, 'F': 15} 
+  
+    res = 0
+  
+    size = len(hexadecimal) - 1
+  
+    for num in hexadecimal: 
+        res = res + table[num]*16**size 
+        size = size - 1
+    
+    return res
+
 
 #Method to convert from hexadecimal to 4-bit hexadecimal value
 def hexTo4Hex(hexBefore):
@@ -35,6 +53,8 @@ def hexTo4Hex(hexBefore):
         result = "00" + str(hexBefore)
     elif len == 3:
         result = "0" + str(hexBefore)
+    else:
+        result = str(hexBefore)
     return result
     
 
@@ -93,7 +113,10 @@ def writingOnIntermidiateFile(LOCCTR, LINEIN):
     while(le > 0):
         f.write(" ")
         le-=1
-    f.write(dic[2])
+    stringToUse = dic[2].removesuffix("\n")
+    f.write(stringToUse + "\n")
+    
+
 writeLst = open("listingFile.lst", "w")
 
 def writingListingFile(loca, fileToUse):
@@ -132,8 +155,19 @@ def writingListingFile(loca, fileToUse):
     wee = fileToUse[2]
     wee = wee.strip()
 
-    writeLst.write(wee + "             ")
-    
+    writeLst.write(wee)
+    lengthOfWee = len(wee)
+
+    le = 0
+    for i in wee:
+        if(i.isalpha() or i == "'" or i == ',' or i.isnumeric()):
+            le+=1
+    le = 15 - le
+    while(le > 0):
+        writeLst.write(" ")
+        le-=1
+
+
     writeLst.write(firstByte)
     secondByte = ""
     for sy in SYMTAB:
@@ -186,9 +220,16 @@ def writingListingFile(loca, fileToUse):
 
 
 
+startingNew = False
 
 #Extracting SYMTAB and LOCCTR
 for Line in Lines:
+    if startingNew == False:
+        dic = Line.split(" ")
+        location = dic[-1]
+        location = hexToDecimal(location)
+        startingNew = True
+ 
     if(Line[0] != '.'):
         dic = Line.split(" ")
         dic[0].replace(" ", "")
@@ -217,7 +258,11 @@ for Line in Lines:
             leng = int(dic[2])
             location = location + leng
         elif dic[1] == "BYTE":
-            location = location + 1
+            if(dic[2][0] == 'C'):
+                location = location + 3
+            else:
+                location = location + 1
+
         else:
             leng = 3
             if count != 0:
@@ -225,13 +270,23 @@ for Line in Lines:
         count+=1
         if dic[1] == "END":
             PROGLENGTH = location
+    else:
+        f.write(Line)
 
 
 
 
 
-
+startingNew = False
+startingNewTwo = False
 for Line in Lines:
+    if startingNew == False:
+        dic = Line.split(" ")
+        location = dic[-1]
+        location = hexToDecimal(location)
+        startingNew = True
+        
+    
     if(Line[0] != '.'):
         dic = Line.split(" ")
         dic[0].replace(" ", "")
@@ -241,7 +296,10 @@ for Line in Lines:
             dic.insert(0,"")
         wrwr = decimalToHexadecimal(location)
         qaa = hexTo4Hex(wrwr)
-        
+        fileToUse = dic
+
+        writingListingFile(qaa, fileToUse)
+
         if dic[1] == "RESW":
             leng = int(dic[2])
             location = location + leng*3
@@ -249,16 +307,20 @@ for Line in Lines:
             leng = int(dic[2])
             location = location + leng
         elif dic[1] == "BYTE":
-            location = location + 1
+            if(dic[2][0] == 'C'):
+                location = location + 3
+            else:
+                location = location + 1
         else:
             leng = 3
             if count != 0:
                 location = location + leng
-        count+=1
 
-        fileToUse = dic
-        loca = qaa
-        writingListingFile(loca, fileToUse)
+        count+=1
+        if startingNewTwo == False:
+            location = location - 3
+            startingNewTwo = True
+
 
 
 
