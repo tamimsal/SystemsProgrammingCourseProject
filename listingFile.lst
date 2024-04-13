@@ -1,0 +1,8 @@
+0000    SUM        START      0      
+0000    FIRST      LDX        ZERO      04
+0003               LDA        ZERO      00
+0006    LOOP       ADD        TABLE,X      18
+0009               TIX        COUNT      2C
+000C               JLT        LOOP      38
+000F               STA        TOTAL      0C
+0012               RSUB             4C

@@ -6,8 +6,3 @@
 000C               JLT        LOOP
 000F               STA        TOTAL
 0012               RSUB       
-0015    TABLE      RESW       128
-0195    COUNT      RESW       1
-0198    ZERO       WORD       0
-019B    TOTAL      RESW       1
-019E               END        FIRST

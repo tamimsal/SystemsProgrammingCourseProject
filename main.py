@@ -74,6 +74,59 @@ def writingOnIntermidiateFile(LOCCTR, LINEIN):
         f.write(" ")
         le-=1
     f.write(dic[2])
+writeLst = open("listingFile.lst", "w")
+
+def writingListingFile(loca, fileToUse):
+    optabFile = open("OPTAB.asm", 'r')
+    opLines = optabFile.readlines()
+    toLookFor = fileToUse[1]
+    firstByte = ""
+    for opLine in opLines:
+        dicta = opLine.split(" ")
+        while("" in dicta):
+            dicta.remove("") 
+        if(dicta[0] == toLookFor):
+            firstByte = dicta[1]
+    writeLst.write(loca)
+    writeLst.write("    " + fileToUse[0])
+    lens = str(fileToUse[0])
+    le = 0
+    for i in lens:
+        if(i.isalpha()):
+            le+=1
+    le = 11 - le
+    while(le > 0):
+        writeLst.write(" ")
+        le-=1
+    writeLst.write(fileToUse[1])
+
+    lens = str(fileToUse[1])
+    le = 0
+    for i in lens:
+        if(i.isalpha()):
+            le+=1
+    le = 11 - le
+    while(le > 0):
+        writeLst.write(" ")
+        le-=1
+    wee = fileToUse[2]
+    wee = wee.strip()
+
+    writeLst.write(wee + "      ")
+    
+    writeLst.write(firstByte)
+
+    for sy in SYMTAB:
+        if(wee == sy):
+            writeLst.write(SYMTAB[sy])
+            print(wee + " " + sy)
+
+            
+
+    writeLst.write("\n")
+
+
+
 
 
 #Extracting SYMTAB and LOCCTR
@@ -98,7 +151,7 @@ for Line in Lines:
             SYMTAB[dic[0]] = qaa
     
         writingOnIntermidiateFile(qaa,dic)
-
+        
         if dic[1] == "RESW":
             leng = int(dic[2])
             location = location + leng*3
@@ -115,10 +168,24 @@ for Line in Lines:
         if dic[1] == "END":
             PROGLENGTH = location
 
+        fileToUse = dic
+        loca = qaa
+        writingListingFile(loca, fileToUse)
+
+
 for line in Lines:
     comment = ""
     for i in line [40:70]:
         comment = comment + str(i)
+
+
+
+
+
+
+
+
+
 
 
 #Converting Program length to the right form
