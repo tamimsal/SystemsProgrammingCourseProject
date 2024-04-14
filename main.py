@@ -396,14 +396,16 @@ def writingOnObjectFile():
             recLength = 0
             toWrite = "T^"
             toWrite = toWrite + "00" + rec + "^##"
-            toWrite = toWrite + "^" + OBJDIC[rec]
+            if(len(OBJDIC[rec]) > 0):
+                toWrite = toWrite + "^" + OBJDIC[rec]
             if(len(OBJDIC[rec]) == 2):
                 recLength+=1
             elif(len(OBJDIC[rec]) == 6 or len(OBJDIC[rec]) == 3):
                 recLength+=3
         
         else:
-            toWrite = toWrite + "^" + OBJDIC[rec]
+            if(len(OBJDIC[rec]) > 0):
+                toWrite = toWrite + "^" + OBJDIC[rec]
             if(len(OBJDIC[rec]) == 2):
                 recLength+=1
             elif(len(OBJDIC[rec]) == 6 or len(OBJDIC[rec]) == 3):
