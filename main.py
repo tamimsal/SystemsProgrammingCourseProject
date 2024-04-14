@@ -1,4 +1,4 @@
-#SIC assembler pass 1 
+#SIC assembler
 #Done By: Tamim Salhab
 
 #to run this code you could just run it in the ide with python envirement or just write python3 main.py
@@ -139,17 +139,19 @@ writeLst = open("listingFile.lst", "w")
 
 
 def writingListingFile(loca, fileToUse):
+    operands = []
     optabFile = open("OPTAB.asm", 'r')
     opLines = optabFile.readlines()
     toLookFor = fileToUse[1]
     firstByte = ""
-    isConsecetive = True
     for opLine in opLines:
         dicta = opLine.split(" ")
         while("" in dicta):
             dicta.remove("") 
+        operands.append(dicta[0])
         if(dicta[0] == toLookFor):
             firstByte = dicta[1]
+    
     writeLst.write(loca)
     writeLst.write("    " + fileToUse[0])
     lens = str(fileToUse[0])
@@ -186,13 +188,16 @@ def writingListingFile(loca, fileToUse):
         writeLst.write(" ")
         le-=1
 
+    if(fileToUse[1] not in operands and fileToUse[1] != "START" and fileToUse[1] != "BYTE" and fileToUse[1] != "WORD" and fileToUse[1] != "RESW" and fileToUse[1] != "RESB" and fileToUse[1] != "END"):
+        print("Error! opcode " + fileToUse[1] +" not avaliable")
+        exit()
 
     writeLst.write(firstByte)
     secondByte = ""
     for sy in SYMTAB:
         if sy in wee:
             secondByte = SYMTAB[sy]
-
+    
     if(fileToUse[1] == "RSUB"):
         secondByte = "0000"
     elif(fileToUse[1] == "WORD"):
@@ -232,8 +237,28 @@ def writingListingFile(loca, fileToUse):
     fullBytes = firstByte + secondByte
     OBJDIC[str(loca)] = str(fullBytes)
 
+def checkErrors():
+    countSym = {}
+    for line in Lines[1:]:
+        dic = line.split(" ")
+        countSym[dic[0]] = 0
 
+    for line in Lines[1:]:
+        dic = line.split(" ")
+        if(dic[0].isalpha()):
+            countSym[dic[0]]+=1
+        if(dic[0] == "."):
+            dic.clear()
+        while("" in dic):
+            dic.remove("") 
+        
 
+    for z in countSym:
+        if countSym[z] > 1:
+            print("Error! no duplicate symbols are allowed")
+            print( z + " symbol is already in use")
+            exit()
+    
 
 
 
@@ -263,9 +288,10 @@ for Line in Lines:
             dic.insert(0,"")
         wrwr = decimalToHexadecimal(location)
         qaa = hexTo4Hex(wrwr)
+        
         if(dic[0] != ""):
             SYMTAB[dic[0]] = qaa
-    
+
         writingOnIntermidiateFile(qaa,dic)
         
         if dic[1] == "RESW":
@@ -424,14 +450,6 @@ def writingOnObjectFile():
 
 
 
-
-
-
-
-
-
-
-
 #Converting Program length to the right form
 startAddresssDec = hexToDecimal(startingAdd)
 
@@ -440,7 +458,7 @@ PROGLENGTH = PROGLENGTH - startAddresssDec - 3
 PROGLENGTH = decimalToHexadecimal(PROGLENGTH)
 
 PROGLENGTH = hexTo4Hex(PROGLENGTH)
-
+checkErrors()
 writingOnObjectFile()
 
 #Printing SYMTAB, program length, and program name on the command line
