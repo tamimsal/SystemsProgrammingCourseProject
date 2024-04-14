@@ -135,11 +135,13 @@ def writingOnIntermidiateFile(LOCCTR, LINEIN):
 writeLst = open("listingFile.lst", "w")
 
   
-
+def doNothing():
+    doNothing = True
 
 
 def writingListingFile(loca, fileToUse):
     operands = []
+    larerals = []
     optabFile = open("OPTAB.asm", 'r')
     opLines = optabFile.readlines()
     toLookFor = fileToUse[1]
@@ -148,10 +150,13 @@ def writingListingFile(loca, fileToUse):
         dicta = opLine.split(" ")
         while("" in dicta):
             dicta.remove("") 
+        
         operands.append(dicta[0])
         if(dicta[0] == toLookFor):
             firstByte = dicta[1]
     
+
+
     writeLst.write(loca)
     writeLst.write("    " + fileToUse[0])
     lens = str(fileToUse[0])
@@ -191,6 +196,22 @@ def writingListingFile(loca, fileToUse):
     if(fileToUse[1] not in operands and fileToUse[1] != "START" and fileToUse[1] != "BYTE" and fileToUse[1] != "WORD" and fileToUse[1] != "RESW" and fileToUse[1] != "RESB" and fileToUse[1] != "END"):
         print("Error! opcode " + fileToUse[1] +" not avaliable")
         exit()
+    
+    larerals = list(SYMTAB.keys())
+    toCompare = fileToUse[2].replace("\n","")
+    toCompare = toCompare.replace(",X","")
+
+
+
+    if len(toCompare) > 0 and toCompare not in larerals and toCompare[0].isnumeric() == False:
+        if toCompare[0] == 'C' and toCompare[1] == "'" and toCompare[5] == "'":
+            doNothing()
+        elif toCompare[0] == 'X' and toCompare[1] == "'" and toCompare[4] == "'":
+            doNothing()
+        else:
+            print("Erorr! Invalid Lateral!")
+            print(toCompare + " is invalid Lateral")
+            exit()
 
     writeLst.write(firstByte)
     secondByte = ""
