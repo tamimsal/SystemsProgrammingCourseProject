@@ -22,6 +22,21 @@ def decimalToHexadecimal(decimal):
         decimal = decimal // 16
     return hexadecimal 
   
+def replacer(s, newstring, index, nofail=False):
+    # raise an error if index is outside of the string
+    if not nofail and index not in range(len(s)):
+        raise ValueError("index outside given string")
+
+    # if not erroring, but the index is still not in the correct range..
+    if index < 0:  # add it to the beginning
+        return newstring + s
+    if index > len(s):  # add it to the end
+        return s + newstring
+
+    # insert the new string between "slices" of the original
+    return s[:index] + newstring + s[index + 1:]
+
+
 def hexToDecimal(hexadecimal):
     hexadecimal = "" + hexadecimal[0] + hexadecimal[1] + hexadecimal[2] + hexadecimal[3]  
     table = {'0': 0, '1': 1, '2': 2, '3': 3,  
@@ -87,7 +102,7 @@ PROGLENGTH = 0
 count = 0
 PRGNAME = ""
 location = 0
-
+OBJDIC = {}
 
 #Method to write intermidiate file 
 def writingOnIntermidiateFile(LOCCTR, LINEIN):
@@ -119,11 +134,16 @@ def writingOnIntermidiateFile(LOCCTR, LINEIN):
 
 writeLst = open("listingFile.lst", "w")
 
+  
+
+
+
 def writingListingFile(loca, fileToUse):
     optabFile = open("OPTAB.asm", 'r')
     opLines = optabFile.readlines()
     toLookFor = fileToUse[1]
     firstByte = ""
+    isConsecetive = True
     for opLine in opLines:
         dicta = opLine.split(" ")
         while("" in dicta):
@@ -156,7 +176,6 @@ def writingListingFile(loca, fileToUse):
     wee = wee.strip()
 
     writeLst.write(wee)
-    lengthOfWee = len(wee)
 
     le = 0
     for i in wee:
@@ -209,13 +228,11 @@ def writingListingFile(loca, fileToUse):
             secondByte = secondByte + convertToAscii
 
     writeLst.write(secondByte)
-
-
-
-
-            
-
     writeLst.write("\n")
+    fullBytes = firstByte + secondByte
+    OBJDIC[str(loca)] = str(fullBytes)
+
+
 
 
 
@@ -276,13 +293,14 @@ for Line in Lines:
 
 
 
-
+startingAdd = 0
 startingNew = False
 startingNewTwo = False
 for Line in Lines:
     if startingNew == False:
         dic = Line.split(" ")
         location = dic[-1]
+        startingAdd = location
         location = hexToDecimal(location)
         startingNew = True
         
@@ -297,9 +315,8 @@ for Line in Lines:
         wrwr = decimalToHexadecimal(location)
         qaa = hexTo4Hex(wrwr)
         fileToUse = dic
-
         writingListingFile(qaa, fileToUse)
-
+        
         if dic[1] == "RESW":
             leng = int(dic[2])
             location = location + leng*3
@@ -325,39 +342,83 @@ for Line in Lines:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 for line in Lines:
     comment = ""
     for i in line [40:70]:
         comment = comment + str(i)
+
+
+def writingOnObjectFile():
+    objectFile = open("objectFile.obj", 'w')
+
+    objectFile.write('H^' + PRGNAME)
+
+    prgNameLen = len(PRGNAME)
+    while prgNameLen < 6:
+        objectFile.write(" ")
+        prgNameLen+=1
+    objectFile.write("^00" + startingAdd[0] + startingAdd[1] + startingAdd[2] + startingAdd[3] + "^00" + PROGLENGTH + "\n")
+    toWrite = ""
+    recLength = 0
+    prevLoc = 0
+    isFirstOne = False
+    isToprint = False
+    for rec in OBJDIC:
+        if(prevLoc != 0):
+            nowLoc = hexToDecimal(rec)
+            if(nowLoc - prevLoc > 3):
+                lengthOfrecord = decimalToHexadecimal(recLength)
+                toWrite = replacer(toWrite,lengthOfrecord[0],9)
+                toWrite = replacer(toWrite,lengthOfrecord[1],10)
+                objectFile.write(toWrite + "\n")
+                recLength = 0
+            prevLoc = hexToDecimal(rec)
+        
+        if(isFirstOne == False):
+            prevLoc = hexToDecimal(rec)
+            isFirstOne = True
+        if(recLength + 3 > 30):
+            isToprint = True
+        if(recLength == 0):
+            toWrite = "T^"
+            toWrite = toWrite + "00" + rec + "^##^" + OBJDIC[rec]
+            if(len(OBJDIC[rec]) == 2):
+                recLength+=1
+            elif(len(OBJDIC[rec]) == 6 or len(OBJDIC[rec]) == 3):
+                recLength+=3
+            
+        elif(recLength == 30 or isToprint):
+            lengthOfrecord = decimalToHexadecimal(recLength)
+            toWrite = replacer(toWrite,lengthOfrecord[0],9)
+            toWrite = replacer(toWrite,lengthOfrecord[1],10)
+            isToprint = False
+            objectFile.write(toWrite + "\n")
+            recLength = 0
+            toWrite = "T^"
+            toWrite = toWrite + "00" + rec + "^##"
+            toWrite = toWrite + "^" + OBJDIC[rec]
+            if(len(OBJDIC[rec]) == 2):
+                recLength+=1
+            elif(len(OBJDIC[rec]) == 6 or len(OBJDIC[rec]) == 3):
+                recLength+=3
+        
+        else:
+            toWrite = toWrite + "^" + OBJDIC[rec]
+            if(len(OBJDIC[rec]) == 2):
+                recLength+=1
+            elif(len(OBJDIC[rec]) == 6 or len(OBJDIC[rec]) == 3):
+                recLength+=3
+            
+    lengthOfrecord = decimalToHexadecimal(recLength)
+    if(len(lengthOfrecord) == 1):
+        lengthOfrecord = "0" +  lengthOfrecord
+    toWrite = replacer(toWrite,lengthOfrecord[0],9)
+    toWrite = replacer(toWrite,lengthOfrecord[1],10)
+
+    objectFile.write(toWrite + "\n")
+
+    objectFile.write("E^00" + startingAdd + "\n")
+    
 
 
 
@@ -370,10 +431,15 @@ for line in Lines:
 
 
 #Converting Program length to the right form
+startAddresssDec = hexToDecimal(startingAdd)
+
+PROGLENGTH = PROGLENGTH - startAddresssDec - 3
+
 PROGLENGTH = decimalToHexadecimal(PROGLENGTH)
+
 PROGLENGTH = hexTo4Hex(PROGLENGTH)
 
-
+writingOnObjectFile()
 
 #Printing SYMTAB, program length, and program name on the command line
 print("SYMTAB")
